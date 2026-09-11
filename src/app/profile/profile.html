@@ -1,0 +1,37 @@
+<div class="site-shell profile-page">
+  <app-header></app-header>
+  <main>
+    <section class="profile-section" aria-labelledby="profile-title">
+      <div class="container profile-layout">
+        <div class="profile-heading">
+          <span class="eyebrow eyebrow-orange"><span class="status-dot"></span> Mi espacio</span>
+          <h1 id="profile-title">Tu <em>perfil</em></h1>
+          <p>Gestiona tus datos personales y mantén actualizada la información de tu cuenta.</p>
+          <a class="back-link" routerLink="/">← Volver al inicio</a>
+        </div>
+        <div class="profile-panel">
+          <div class="profile-panel-heading"><span class="profile-large-avatar" aria-hidden="true">{{ profileForm.controls.name.value.charAt(0).toUpperCase() || '?' }}</span><div><span class="eyebrow">Cuenta SocialShield</span><h2>Datos personales</h2></div></div>
+          @if (saved) { <p class="profile-saved" role="status">✓ Tus datos se han actualizado correctamente.</p> }
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+            <label for="profile-name">Nombre completo</label>
+            <input id="profile-name" type="text" formControlName="name" autocomplete="name" placeholder="Tu nombre completo" />
+            @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) { <small class="field-error">Escribe tu nombre completo.</small> }
+            <label for="profile-email">Correo electrónico</label>
+            <input id="profile-email" type="email" formControlName="email" autocomplete="email" placeholder="tu correo@ejemplo.com" />
+            @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) { <small class="field-error">Escribe un correo electrónico válido.</small> }
+            <label for="profile-phone">Teléfono <span class="optional-label">Opcional</span></label>
+            <input id="profile-phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="+34 600 000 000" />
+            <label for="profile-bio">Sobre ti <span class="optional-label">Opcional</span></label>
+            <textarea id="profile-bio" formControlName="bio" rows="3" placeholder="Añade una breve descripción"></textarea>
+            <button class="button button-orange profile-save" type="submit">Guardar cambios <span aria-hidden="true">✓</span></button>
+          </form>
+          <div class="profile-actions">
+            <button class="profile-action-button" type="button" (click)="logout()">Salir de mi cuenta <span aria-hidden="true">→</span></button>
+            <button class="profile-action-button profile-delete-button" type="button" (click)="deleteAccount()">Borrar mi cuenta <span aria-hidden="true">×</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,11 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top" (click)="closeMenu()"><span class="shield-mark" aria-hidden="true">✓</span><span>SocialShield</span></a>
+    <nav class="desktop-nav" aria-label="Navegación principal"><a href="#courses">Cursos</a><a href="#why">¿Por qué nosotros?</a><a href="#courses">Recursos</a></nav>
+    @if (profileName()) { <a class="profile-badge" routerLink="/perfil"><span class="profile-avatar" aria-hidden="true">{{ profileName()?.charAt(0)?.toUpperCase() }}</span><span>Hola, {{ profileName() }}</span></a> } @else { <a class="button button-orange desktop-cta" href="#courses">Ver cursos</a> }
+    <button class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú"><span>{{ menuOpen() ? '×' : '☰' }}</span></button>
+  </div>
+  @if (menuOpen()) {
+    <nav class="mobile-nav" aria-label="Navegación móvil"><a href="#courses" (click)="closeMenu()">Cursos</a><a href="#why" (click)="closeMenu()">¿Por qué nosotros?</a><a class="button button-orange" href="#courses" (click)="closeMenu()">Ver cursos</a></nav>
+  }
+</header>

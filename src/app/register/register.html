@@ -1,0 +1,39 @@
+<div class="site-shell register-page">
+  <app-header></app-header>
+  <main>
+    <section class="login-section register-section" aria-labelledby="register-title">
+      <div class="container login-layout">
+        <div class="login-intro">
+          <span class="eyebrow eyebrow-orange"><span class="status-dot"></span> Únete a SocialShield</span>
+          <h1 id="register-title">Empieza a construir tu <em>defensa digital</em></h1>
+          <p>Crea tu cuenta gratuita y lleva tu progreso contigo mientras aprendes a reconocer y evitar amenazas digitales.</p>
+          <div class="login-note"><span class="login-note-icon" aria-hidden="true">✓</span><span>Acceso gratuito a formación práctica y certificados.</span></div>
+        </div>
+        <div class="login-panel register-panel">
+          <div class="login-panel-heading"><span class="eyebrow">Nuevo estudiante</span><h2>Crea tu cuenta</h2><p>Completa tus datos más importantes para comenzar.</p></div>
+          @if (saved) { <div class="save-success" role="status"><span class="login-note-icon" aria-hidden="true">✓</span><div><strong>Registro completado</strong><span>Tu información se ha guardado correctamente.</span></div></div> }
+          @if (saving) { <div class="save-status" role="status"><span class="save-spinner" aria-hidden="true"></span><div><strong>Guardando tu información...</strong><span>Este proceso terminará en {{ secondsRemaining }} segundos.</span></div></div> }
+          <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
+            <label for="name">Nombre completo</label>
+            <input id="name" type="text" formControlName="name" autocomplete="name" placeholder="Tu nombre completo" [class.input-error]="registerForm.controls.name.invalid && (registerForm.controls.name.touched || submitted)" />
+            @if (registerForm.controls.name.invalid && (registerForm.controls.name.touched || submitted)) { <small class="field-error">Escribe tu nombre completo.</small> }
+            <label for="register-email">Correo electrónico</label>
+            <input id="register-email" type="email" formControlName="email" autocomplete="email" placeholder="tu correo@ejemplo.com" [class.input-error]="registerForm.controls.email.invalid && (registerForm.controls.email.touched || submitted)" />
+            @if (registerForm.controls.email.invalid && (registerForm.controls.email.touched || submitted)) { <small class="field-error">Escribe un correo electrónico válido.</small> }
+            <label for="register-password">Contraseña</label>
+            <input id="register-password" type="password" formControlName="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" [class.input-error]="registerForm.controls.password.invalid && (registerForm.controls.password.touched || submitted)" />
+            @if (registerForm.controls.password.invalid && (registerForm.controls.password.touched || submitted)) { <small class="field-error">La contraseña debe tener al menos 8 caracteres.</small> }
+            <label for="confirm-password">Confirmar contraseña</label>
+            <input id="confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="Repite tu contraseña" [class.input-error]="(registerForm.controls.confirmPassword.invalid || passwordsDoNotMatch()) && (registerForm.controls.confirmPassword.touched || submitted)" />
+            @if (registerForm.controls.confirmPassword.invalid && (registerForm.controls.confirmPassword.touched || submitted)) { <small class="field-error">Confirma tu contraseña.</small> } @else if (passwordsDoNotMatch() && (registerForm.controls.confirmPassword.touched || submitted)) { <small class="field-error">Las contraseñas no coinciden.</small> }
+            <label class="terms-option"><input type="checkbox" formControlName="terms" /> <span>Acepto los términos y condiciones de SocialShield.</span></label>
+            @if (registerForm.controls.terms.invalid && (registerForm.controls.terms.touched || submitted)) { <small class="field-error">Debes aceptar los términos para continuar.</small> }
+            <button class="button button-orange login-submit" type="submit" [disabled]="saving">Crear mi cuenta <span aria-hidden="true">→</span></button>
+          </form>
+          <p class="login-register">¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <app-footer></app-footer>
+</div>
