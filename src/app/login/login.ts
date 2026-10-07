@@ -5,6 +5,13 @@ import { Router, RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { Header } from '../header/header';
 
+// Define el formato que debe tener el objeto del formulario de login.
+interface LoginFormValues {
+  email: string;
+  password: string;
+  remember: boolean;
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -42,16 +49,21 @@ export class Login {
       return;
     }
 
-    const email = this.loginForm.controls.email.value.trim().toLowerCase();
+    const values: LoginFormValues = {
+      email: this.loginForm.controls.email.value.trim().toLowerCase(),
+      password: this.loginForm.controls.password.value,
+      remember: this.loginForm.controls.remember.value,
+    };
+
     const registeredEmail = localStorage.getItem('socialshield-profile-email');
     const registeredPassword = localStorage.getItem('socialshield-account-password');
 
-    if (!registeredEmail || email !== registeredEmail) {
+    if (!registeredEmail || values.email !== registeredEmail) {
       this.notification = 'No existe una cuenta con este correo electrónico.';
       return;
     }
 
-    if (this.loginForm.controls.password.value !== registeredPassword) {
+    if (values.password !== registeredPassword) {
       this.notification = 'La contraseña es incorrecta. Inténtalo de nuevo.';
       return;
     }

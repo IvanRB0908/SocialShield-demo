@@ -4,5 +4,5 @@
     <div class="hero-copy"><span class="eyebrow eyebrow-orange"><span class="status-dot"></span> Plataforma educativa gratuita</span><h1>Aprende a protegerte de la <em>ingeniería social</em></h1><p>Los ataques más peligrosos no explotan sistemas, explotan personas. En SocialShield te enseñamos a reconocer, reaccionar y protegerte.</p><div class="hero-actions"><a class="button button-orange" href="#courses">Ver los cursos <span aria-hidden="true">→</span></a><a class="button button-outline" href="#why">Conoce SocialShield</a></div></div>
     <div class="hero-visual" aria-label="Tu defensa digital empieza aquí"><div class="shield-panel"><span class="floating-badge badge-top">100% gratuito</span><div class="large-shield" aria-hidden="true">✓</div><p>Tu defensa digital<br>empieza aquí</p><span class="floating-badge badge-bottom">Certificado incluido</span></div></div>
   </div>
-  <div class="stats-bar"><div class="container stats-grid">@for (stat of stats; track stat[1]) {<div class="stat"><strong>{{ stat[0] }}</strong><span>{{ stat[1] }}</span></div>}</div></div>
+  <div class="stats-bar"><div class="container stats-grid">@for (stat of stats; track stat.label) {<div class="stat"><strong>{{ stat.value }}</strong><span>{{ stat.label }}</span></div>}</div></div>
 </section>

@@ -5,6 +5,15 @@ import { Router, RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { Header } from '../header/header';
 
+// Define el formato del objeto que se guarda cuando el usuario se registra.
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  terms: boolean;
+}
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -40,6 +49,14 @@ export class Register implements OnDestroy {
       return;
     }
 
+    const values: RegisterFormValues = {
+      name: this.registerForm.controls.name.value,
+      email: this.registerForm.controls.email.value.trim().toLowerCase(),
+      password: this.registerForm.controls.password.value,
+      confirmPassword: this.registerForm.controls.confirmPassword.value,
+      terms: this.registerForm.controls.terms.value,
+    };
+
     this.saving = true;
     this.saved = false;
     this.secondsRemaining = 5;
@@ -50,10 +67,10 @@ export class Register implements OnDestroy {
         this.saved = true;
         this.clearSaveTimer();
         if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('socialshield-profile-name', this.registerForm.controls.name.value);
-          localStorage.setItem('socialshield-profile-email', this.registerForm.controls.email.value.trim().toLowerCase());
-          localStorage.setItem('socialshield-account-password', this.registerForm.controls.password.value);
-          localStorage.setItem('socialshield-session-name', this.registerForm.controls.name.value);
+          localStorage.setItem('socialshield-profile-name', values.name);
+          localStorage.setItem('socialshield-profile-email', values.email);
+          localStorage.setItem('socialshield-account-password', values.password);
+          localStorage.setItem('socialshield-session-name', values.name);
         }
         void this.router.navigateByUrl('/');
       }

@@ -5,6 +5,14 @@ import { Router, RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { Header } from '../header/header';
 
+// Define el formato del perfil que se guarda en el almacenamiento local.
+interface ProfileFormValues {
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -43,12 +51,19 @@ export class Profile {
       return;
     }
 
+    const values: ProfileFormValues = {
+      name: this.profileForm.controls.name.value,
+      email: this.profileForm.controls.email.value,
+      phone: this.profileForm.controls.phone.value,
+      bio: this.profileForm.controls.bio.value,
+    };
+
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('socialshield-profile-name', this.profileForm.controls.name.value);
-      localStorage.setItem('socialshield-profile-email', this.profileForm.controls.email.value);
-      localStorage.setItem('socialshield-profile-phone', this.profileForm.controls.phone.value);
-      localStorage.setItem('socialshield-profile-bio', this.profileForm.controls.bio.value);
-      localStorage.setItem('socialshield-session-name', this.profileForm.controls.name.value);
+      localStorage.setItem('socialshield-profile-name', values.name);
+      localStorage.setItem('socialshield-profile-email', values.email);
+      localStorage.setItem('socialshield-profile-phone', values.phone);
+      localStorage.setItem('socialshield-profile-bio', values.bio);
+      localStorage.setItem('socialshield-session-name', values.name);
     }
     this.saved = true;
   }
