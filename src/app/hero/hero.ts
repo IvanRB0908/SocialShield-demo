@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CourseApiService } from '../services/course-api.service';
 
 // Define la estructura de cada estadística visible en el hero banner.
 interface HeroStat {
@@ -11,11 +12,16 @@ interface HeroStat {
   standalone: true,
   templateUrl: './hero.html',
 })
-export class Hero {
-  readonly stats: HeroStat[] = [
-    { value: '12,000+', label: 'Estudiantes formados' },
-    { value: '94%', label: 'Tasa de satisfacción' },
-    { value: '3 cursos', label: 'Especializados' },
-    { value: 'Certificado', label: 'Reconocido' },
-  ];
+export class Hero implements OnInit {
+  stats: HeroStat[] = [];
+  errorMessage = '';
+
+  constructor(private readonly courseApi: CourseApiService) {}
+
+  ngOnInit(): void {
+    this.courseApi.getHomePage().subscribe({
+      next: (homePage) => (this.stats = homePage.stats),
+      error: () => (this.errorMessage = 'No se pudieron cargar las estadísticas.'),
+    });
+  }
 }

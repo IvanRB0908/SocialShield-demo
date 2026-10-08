@@ -1,14 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CourseApiService } from '../services/course-api.service';
-import Course from '../models/Course';
-
-interface CourseCard extends Course {
-  icon: string;
-  tag: string;
-  description: string;
-  level: string;
-}
+import { ApiCourse, CreateCourseRequest } from '../models/ApiCourse';
 
 @Component({
   selector: 'app-courses',
@@ -16,18 +9,26 @@ interface CourseCard extends Course {
   imports: [RouterLink],
   templateUrl: './courses.html',
 })
-export class Courses {
-  currentCourse!: Course;
-
-  courses: CourseCard[] = [
-    { icon: '✉', tag: 'Más popular', title: 'Detección de Phishing', description: 'Aprende a identificar correos, mensajes y sitios web fraudulentos antes de que sea tarde. Casos reales y simulaciones interactivas.', duration: 4, level: 'Principiante', lessons: 12, isAvailable: true },
-    { icon: '◎', tag: 'Nuevo', title: 'Seguridad en Redes Sociales', description: 'Protege tu identidad digital, configura la privacidad correctamente y reconoce perfiles falsos y estafas en plataformas sociales.', duration: 3, level: 'Intermedio', lessons: 9, isAvailable: true },
-    { icon: '⌕', tag: 'Esencial', title: 'Llamadas de Fraude', description: 'Identifica vishing, llamadas de suplantación de identidad y técnicas de presión psicológica usadas por estafadores telefónicos.', duration: 2, level: 'Principiante', lessons: 7, isAvailable: true },
-    { icon: '▤', tag: 'Avanzado', title: 'Manipulación Psicológica', description: 'Comprende las tácticas de persuasión, urgencia y miedo que usan los atacantes para lograr que compartas información confidencial.', duration: 3, level: 'Intermedio', lessons: 10, isAvailable: true },
-    { icon: '▧', tag: 'Nuevo', title: 'Seguridad en Mensajería', description: 'Detecta cadenas de desinformación, enlaces maliciosos y estafas enviadas por WhatsApp, Telegram y otras apps.', duration: 2, level: 'Principiante', lessons: 8, isAvailable: true },
-  ];
+export class Courses implements OnInit {
+  currentCourse!: CreateCourseRequest;
+  courses: ApiCourse[] = [];
+  loading = true;
+  errorMessage = '';
 
   constructor(private readonly courseApi: CourseApiService) {}
+
+  ngOnInit(): void {
+    this.courseApi.getCourses().subscribe({
+      next: (courses) => {
+        this.courses = courses;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = 'No se pudieron cargar los cursos.';
+        this.loading = false;
+      },
+    });
+  }
 
   saveCourse(): void {
     const courseTitle = document.getElementById('courseTitle') as HTMLInputElement;
@@ -37,7 +38,7 @@ export class Courses {
 
     this.currentCourse = {
       title: courseTitle.value,
-      duration: Number(courseDuration.value),
+      duration: `${courseDuration.value} semanas`,
       lessons: Number.parseInt(courseLessons.value, 10),
       isAvailable: courseAvailable.checked,
     };
@@ -46,17 +47,10 @@ export class Courses {
       next: (course) => {
         this.courses = [
           ...this.courses,
-          {
-            ...course,
-            icon: '＋',
-            tag: course.isAvailable ? 'Nuevo' : 'Próximamente',
-            description: 'Curso añadido desde la API de SocialShield.',
-            level: 'Por definir',
-          },
+          course,
         ];
-        console.log(course);
       },
-      error: (error: unknown) => console.error('No se pudo guardar el curso.', error),
+      error: () => (this.errorMessage = 'No se pudo guardar el curso.'),
     });
   }
 }
