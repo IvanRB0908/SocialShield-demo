@@ -1,8 +1,9 @@
 export interface ApiCourse {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  duration: string;
+  duration: number;
+  available: boolean;
   level: string;
   lessons: number;
   tag: string;
@@ -11,7 +12,10 @@ export interface ApiCourse {
 
 export interface CreateCourseRequest {
   title: string;
-  duration: string;
-  lessons: number;
-  isAvailable: boolean;
+  duration: number;
+  available: boolean;
+  icon: string;
+  tag: string;
+  description: string;
+  level: string;
 }

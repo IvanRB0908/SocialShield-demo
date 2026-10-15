@@ -1,28 +1,26 @@
 # SocialShield
 
-Repositorio con el frontend Angular y el backend Spring Boot organizados en carpetas separadas.
+Plataforma con frontend Angular y backend Spring Boot conectados a PostgreSQL.
 
 ## Requisitos
 
 - Node.js y npm compatibles con Angular CLI 22.
-- Java 25 o superior para Spring Boot.
+- Java 25 o superior; el proyecto incluye Maven Wrapper.
+- PostgreSQL con la base `socialshield_db`.
 
-## Ejecutar el proyecto
+## Ejecutar
 
-Abre dos terminales desde la raíz del repositorio.
-
-### Backend
+Configura las variables del backend en PowerShell. Usa la contraseña de tu instalación local; no la guardes en el repositorio:
 
 ```powershell
+$env:DB_URL = "jdbc:postgresql://localhost:5432/socialshield_db"
+$env:DB_USERNAME = "postgres"
+$env:DB_PASSWORD = "<contraseña-local>"
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-El backend queda disponible en `http://localhost:8080`.
-
-### Frontend
-
-En la segunda terminal:
+Spring Boot inicia en `http://localhost:8080` y Flyway aplica las migraciones pendientes al arrancar. En otra terminal ejecuta el frontend:
 
 ```powershell
 cd frontend
@@ -30,31 +28,24 @@ npm ci
 npm start
 ```
 
-Abre `http://localhost:4200/` en el navegador. El frontend consulta el backend en `http://localhost:8080`.
+Abre `http://localhost:4200/`. El frontend consume el backend en `http://localhost:8080`.
 
-## Endpoints del backend
+## API y base de datos
 
-| Controller | Endpoint | Respuesta |
-| --- | --- | --- |
-| `PruebaController` | `http://localhost:8080/api/prueba` | Mensaje de confirmación |
-| `CourseController` | `http://localhost:8080/api/health` | `OK` |
-| `CourseController` | `http://localhost:8080/api/home` | Datos de inicio en JSON |
-| `CourseController` | `http://localhost:8080/api/courses` | Cursos en JSON |
+El backend tiene CRUD persistente para cursos, usuarios, instructores, lecciones, inscripciones y evaluaciones. Consulta [la documentación detallada de endpoints, modelos y migraciones](./backend/README.md).
+
+La base usa relaciones y claves foráneas para evitar duplicar nombres o datos de entidades relacionadas. Los conteos de lecciones se calculan a partir de las lecciones registradas. El endpoint de reportes de seguridad sigue siendo temporal y se pierde al reiniciar el backend.
 
 ## Pruebas
-
-Frontend:
 
 ```powershell
 cd frontend
 npm test
 ```
 
-Backend:
+Las pruebas del backend requieren PostgreSQL disponible y `DB_PASSWORD` configurada:
 
 ```powershell
 cd backend
 .\mvnw.cmd test
 ```
-
-La evidencia de pruebas de los controllers está en [`docs/evidence/PRUEBAS DE LOS CONTROLLER.pdf`](./docs/evidence/PRUEBAS%20DE%20LOS%20CONTROLLER.pdf).
