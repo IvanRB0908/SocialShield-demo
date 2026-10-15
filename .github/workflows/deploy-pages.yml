@@ -25,16 +25,19 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: npm ci
+        working-directory: frontend
       - name: Build Angular site
         run: npm run build -- --base-href /SocialShield-demo/
+        working-directory: frontend
       - name: Prepare SPA fallback
-        run: cp dist/curso-defensa/browser/index.html dist/curso-defensa/browser/404.html
+        run: cp frontend/dist/curso-defensa/browser/index.html frontend/dist/curso-defensa/browser/404.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/curso-defensa/browser
+          path: frontend/dist/curso-defensa/browser
 
   deploy:
     environment:
