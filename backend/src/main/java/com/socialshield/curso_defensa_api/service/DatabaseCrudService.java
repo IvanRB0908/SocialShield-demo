@@ -229,6 +229,33 @@ public class DatabaseCrudService {
         return new UserResponse(Integer.toString(user.id()), user.name(), user.email());
     }
 
+    @Transactional
+    public UserResponse loginWithGoogle(String name, String email) {
+        String normalizedEmail = normalizeEmail(email);
+        List<GoogleAccount> accounts = jdbc.query(
+            "SELECT id, nombre, correo, activo FROM usuarios WHERE LOWER(correo) = ?",
+            (rs, row) -> new GoogleAccount(
+                rs.getInt("id"), rs.getString("nombre"), rs.getString("correo"), rs.getBoolean("activo")
+            ),
+            normalizedEmail
+        );
+        if (!accounts.isEmpty()) {
+            GoogleAccount account = accounts.getFirst();
+            if (!account.active()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "La cuenta de usuario está inactiva.");
+            }
+            return new UserResponse(Integer.toString(account.id()), account.name(), account.email());
+        }
+
+        byte[] secret = new byte[32];
+        RANDOM.nextBytes(secret);
+        String unusablePassword = Base64.getUrlEncoder().withoutPadding().encodeToString(secret);
+        UserCrudResponse created = createUser(new UserCrudRequest(
+            name, normalizedEmail, unusablePassword, null, null, true
+        ));
+        return new UserResponse(Integer.toString(created.id()), created.name(), created.email());
+    }
+
     public List<CourseCrudResponse> getCourses() {
         return jdbc.query(COURSE_SELECT + " ORDER BY c.id", COURSE_MAPPER);
     }
@@ -600,5 +627,8 @@ public class DatabaseCrudService {
     }
 
     private record StoredPassword(int id, String name, String email, String passwordHash) {
+    }
+
+    private record GoogleAccount(int id, String name, String email, boolean active) {
     }
 }

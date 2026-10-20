@@ -1,5 +1,6 @@
 package com.socialshield.curso_defensa_api;
 
+import com.socialshield.curso_defensa_api.service.DatabaseCrudService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,32 @@ class DatabaseCrudControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+    @Autowired
+    private DatabaseCrudService databaseCrudService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = webAppContextSetup(webApplicationContext).build();
+    }
+
+    @Test
+    void shouldRejectEmptyGoogleIdToken() throws Exception {
+        mockMvc.perform(post("/api/auth/google")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"idToken\":\" \"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldCreateAndReuseGoogleUserByVerifiedEmail() {
+        String email = "google-%s@example.test".formatted(java.util.UUID.randomUUID());
+
+        var firstLogin = databaseCrudService.loginWithGoogle("Google User", email);
+        var secondLogin = databaseCrudService.loginWithGoogle("Another Name", email);
+
+        org.junit.jupiter.api.Assertions.assertEquals(firstLogin.id(), secondLogin.id());
+        org.junit.jupiter.api.Assertions.assertEquals("Google User", secondLogin.name());
     }
 
     @Test

@@ -1,11 +1,13 @@
 package com.socialshield.curso_defensa_api.controller;
 
+import com.socialshield.curso_defensa_api.model.GoogleLoginRequest;
 import com.socialshield.curso_defensa_api.model.LoginRequest;
 import com.socialshield.curso_defensa_api.model.RegisterRequest;
 import com.socialshield.curso_defensa_api.model.UserCrudRequest;
 import com.socialshield.curso_defensa_api.model.UserCrudResponse;
 import com.socialshield.curso_defensa_api.model.UserResponse;
 import com.socialshield.curso_defensa_api.service.DatabaseCrudService;
+import com.socialshield.curso_defensa_api.service.GoogleLoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,9 +29,11 @@ import java.util.List;
 public class UserAuthController {
 
     private final DatabaseCrudService databaseCrudService;
+    private final GoogleLoginService googleLoginService;
 
-    public UserAuthController(DatabaseCrudService databaseCrudService) {
+    public UserAuthController(DatabaseCrudService databaseCrudService, GoogleLoginService googleLoginService) {
         this.databaseCrudService = databaseCrudService;
+        this.googleLoginService = googleLoginService;
     }
 
     @PostMapping("/users")
@@ -55,6 +59,15 @@ public class UserAuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo y la contraseña son obligatorios.");
         }
         return databaseCrudService.login(request);
+    }
+
+    @PostMapping("/auth/google")
+    public UserResponse googleLogin(@RequestBody GoogleLoginRequest request) {
+        if (request == null || request.idToken() == null
+            || request.idToken().isBlank() || request.idToken().length() > 10_000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Proporciona un ID token de Google válido.");
+        }
+        return googleLoginService.login(request.idToken());
     }
 
     @GetMapping("/users")
