@@ -34,7 +34,7 @@ Abre `http://localhost:4200/`. El frontend consume el backend en `http://localho
 
 El backend tiene CRUD persistente para cursos, usuarios, instructores, lecciones, inscripciones y evaluaciones. Consulta [la documentación detallada de endpoints, modelos y migraciones](./backend/README.md).
 
-La base usa relaciones y claves foráneas para evitar duplicar nombres o datos de entidades relacionadas. Los conteos de lecciones se calculan a partir de las lecciones registradas. El endpoint de reportes de seguridad sigue siendo temporal y se pierde al reiniciar el backend.
+La base usa relaciones y claves foráneas para evitar duplicar nombres o datos de entidades relacionadas. Los conteos de lecciones se calculan a partir de las lecciones registradas. Los reportes de seguridad también se guardan en PostgreSQL.
 
 ## Pruebas
 

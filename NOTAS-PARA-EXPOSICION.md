@@ -4,7 +4,7 @@ Este documento es una guía personal para presentar los cambios en clase. Resume
 
 ## Resumen para empezar la exposición
 
-El backend pasó de manejar algunos datos temporalmente en memoria a consultar y modificar PostgreSQL. Se implementaron seis recursos CRUD: cursos, usuarios, instructores, lecciones, inscripciones y evaluaciones. Las claves foráneas conectan los registros relacionados, y las migraciones de Flyway retiraron datos repetidos para mantener el esquema normalizado. El frontend ahora carga y crea cursos usando el backend. Las pruebas de integración realizan operaciones contra PostgreSQL y revierten sus cambios.
+El backend pasó de manejar algunos datos temporalmente en memoria a consultar y modificar PostgreSQL. Se implementaron recursos persistentes para cursos, usuarios, instructores, lecciones, inscripciones, evaluaciones y reportes de seguridad. Las claves foráneas conectan los registros relacionados, y las migraciones de Flyway retiraron datos repetidos para mantener el esquema normalizado. El frontend ahora carga y crea cursos usando el backend. Las pruebas de integración realizan operaciones contra PostgreSQL y revierten sus cambios.
 
 ## Qué significa CRUD
 
@@ -27,7 +27,7 @@ El código está en `backend/src/main/java/com/socialshield/curso_defensa_api/co
 | `LessonController.java` | `/api/lessons` y `/api/lessons/{id}` | Crea y modifica lecciones enlazadas a un curso y un instructor. |
 | `EnrollmentController.java` | `/api/enrollments`, `/api/enrollments/{id}`, `/api/users/{userId}/progress` | Administra inscripciones y calcula el resumen de progreso de un usuario. |
 | `EvaluationController.java` | `/api/evaluations` y `/api/evaluations/{id}` | Administra la calificación, los intentos y el resultado de evaluaciones. |
-| `SecurityReportController.java` | `/api/security-reports` | Conserva la API de reportes de riesgo, que todavía usa almacenamiento temporal en memoria. |
+| `SecurityReportController.java` | `/api/security-reports` | Crea y consulta reportes de seguridad persistidos en PostgreSQL. |
 
 Los cuerpos de entrada y las respuestas tienen records separados en `backend/src/main/java/com/socialshield/curso_defensa_api/model/`. Por ejemplo, `CourseCrudRequest` es lo que recibe el backend y `CourseCrudResponse` es lo que devuelve. Esta separación evita devolver accidentalmente campos internos, como el hash de contraseña.
 
@@ -50,10 +50,11 @@ Las migraciones están en `backend/src/main/resources/db/migration/` y las ejecu
 
 - `V1__normalize_socialshield_schema.sql` creó tablas para niveles e instructores y conectó las entidades mediante claves foráneas. También eliminó snapshots redundantes, por ejemplo nombres y correos de usuario/cursos copiados en inscripciones, evaluaciones y reseñas.
 - `V2__derive_course_lesson_count.sql` quitó de `cursos` el contador duplicado de lecciones. El total que se muestra para un curso ahora se calcula contando las filas relacionadas en `lecciones`. La restricción única por `(curso_id, numero)` evita repetir el número de lección dentro de un curso.
+- `V3__persist_security_reports.sql` crea `reportes_seguridad` para que los reportes sobrevivan al reinicio del backend.
 
 Ejemplo para presentar: una inscripción guarda `usuario_id` y `curso_id`; para mostrar el nombre del usuario y el título del curso, el backend hace un `JOIN`. Si el nombre cambiara, se actualiza en la tabla del usuario, en vez de tener que sincronizar varias copias.
 
-Las migraciones V1 y V2 ya se ejecutaron en `socialshield_db`. Para cambios de esquema futuros se agrega otra migración versionada; no se edita una migración que ya se aplicó.
+Las migraciones V1, V2 y V3 ya se ejecutaron en `socialshield_db`. Para cambios de esquema futuros se agrega otra migración versionada; no se edita una migración que ya se aplicó.
 
 ## Frontend y APIs retiradas
 
@@ -64,11 +65,11 @@ Las migraciones V1 y V2 ya se ejecutaron en `socialshield_db`. Para cambios de e
 - `frontend/src/server.ts` ya no monta el servidor API temporal competidor: la API persistente está en Spring Boot.
 - Se retiró `PruebaController` porque `/api/health` ya comprueba si el backend responde. También se quitó el modelo antiguo `CreateCourseRequest` después de que el contrato persistente lo reemplazara.
 
-De las APIs de productividad agregadas anteriormente, registro/login e inscripciones/progreso ya consultan PostgreSQL. Los reportes de seguridad todavía están en memoria, por lo que no sobreviven al reinicio.
+Las APIs de registro/login, inscripciones/progreso y reportes de seguridad usan PostgreSQL. El progreso se calcula a partir de las inscripciones del usuario.
 
 ## Pruebas y cómo repetirlas
 
-Las pruebas de `backend/src/test/java/com/socialshield/curso_defensa_api/CourseControllerTest.java` y `DatabaseCrudControllerTest.java` verifican creación, consulta, actualización y borrado contra PostgreSQL, además de referencias inválidas y conflictos por relaciones. La transacción de prueba revierte los registros temporales al finalizar. `SocialPlatformControllerTest.java` prueba el API temporal de reportes.
+Las pruebas de `backend/src/test/java/com/socialshield/curso_defensa_api/CourseControllerTest.java`, `DatabaseCrudControllerTest.java` y `SocialPlatformControllerTest.java` verifican operaciones contra PostgreSQL. Las transacciones de prueba revierten los registros temporales al finalizar.
 
 Para backend, configura `DB_PASSWORD` en la terminal local y ejecuta desde `backend`:
 
@@ -91,4 +92,4 @@ Al verificar estos cambios, pasaron las 7 pruebas del backend, las 3 pruebas del
 2. Abrir `DatabaseCrudService.java` para mostrar cómo JDBC ejecuta las consultas y combina las tablas.
 3. Presentar las claves foráneas y las migraciones Flyway para justificar la normalización.
 4. Mostrar en el frontend el formulario de cursos y cómo consume el backend.
-5. Cerrar con las pruebas de integración y señalar que los reportes aún no tienen persistencia.
+5. Cerrar con las pruebas de integración y mostrar que los reportes también sobreviven al reinicio gracias a PostgreSQL.

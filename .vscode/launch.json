@@ -15,6 +15,16 @@
       "request": "launch",
       "preLaunchTask": "frontend:test",
       "url": "http://localhost:9876/debug.html"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-CursoDefensaApiApplication<curso-defensa-api>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.socialshield.curso_defensa_api.CursoDefensaApiApplication",
+      "projectName": "curso-defensa-api",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

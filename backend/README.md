@@ -13,9 +13,12 @@ Por defecto se conecta a `jdbc:postgresql://localhost:5432/socialshield_db` como
 ```powershell
 $env:DB_URL = "jdbc:postgresql://localhost:5432/socialshield_db"
 $env:DB_USERNAME = "postgres"
-$env:DB_PASSWORD = "<contraseña-local>"
+$env:DB_PASSWORD = "admin"
+$env:GOOGLE_CLIENT_ID = "tu-client-id.apps.googleusercontent.com"
 .\mvnw.cmd spring-boot:run
 ```
+
+Configura `GOOGLE_CLIENT_ID` con el ID de cliente OAuth 2.0 tipo aplicación web creado en Google Cloud. El frontend debe usar ese mismo ID al obtener la credencial de Google.
 
 La aplicación queda disponible en `http://localhost:8080`. Flyway ejecuta las migraciones pendientes al iniciar. Si el puerto está ocupado:
 
@@ -31,14 +34,14 @@ Las operaciones de creación responden `201 Created`, las consultas y actualizac
 | --- | --- |
 | Sistema | `GET /api/health`, `GET /api/home` |
 | Cursos | `GET/POST /api/courses`, `GET/PUT/DELETE /api/courses/{id}` |
-| Usuarios y autenticación | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/{id}`, `POST /api/auth/login` |
+| Usuarios y autenticación | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/{id}`, `POST /api/auth/login`, `POST /api/auth/google` |
 | Instructores | `GET/POST /api/instructors`, `GET/PUT/DELETE /api/instructors/{id}` |
 | Lecciones | `GET/POST /api/lessons`, `GET/PUT/DELETE /api/lessons/{id}` |
 | Inscripciones | `GET/POST /api/enrollments`, `GET/PUT/DELETE /api/enrollments/{id}`, `GET /api/users/{userId}/progress` |
 | Evaluaciones | `GET/POST /api/evaluations`, `GET/PUT/DELETE /api/evaluations/{id}` |
 | Reportes de seguridad | `GET/POST /api/security-reports` |
 
-Cada recurso CRUD incluye lectura de colección y por ID, creación, actualización y borrado. Las contraseñas de usuario se almacenan con PBKDF2 y nunca se devuelven en respuestas. El inicio de sesión valida credenciales, pero todavía no emite tokens ni protege las rutas mediante autorización. Los reportes de seguridad permanecen en memoria; no son persistentes ni forman parte de los CRUD de PostgreSQL.
+Cada recurso CRUD incluye lectura de colección y por ID, creación, actualización y borrado. Las contraseñas de usuario se almacenan con PBKDF2 y nunca se devuelven en respuestas. El inicio de sesión valida credenciales, pero todavía no emite tokens ni protege las rutas mediante autorización. Los reportes de seguridad se guardan en la tabla `reportes_seguridad` de PostgreSQL; su API ofrece creación y consulta.
 
 ## Modelos JSON principales
 
@@ -68,7 +71,13 @@ Crear un usuario con `POST /api/users`:
 }
 ```
 
-Actualizar un usuario usa el mismo perfil; `password` puede omitirse para conservar la contraseña actual. Para iniciar sesión, `POST /api/auth/login` acepta `{"email":"maria@example.com","password":"una-clave-segura"}`.
+Actualizar un usuario usa el mismo perfil; `password` puede omitirse para conservar la contraseña actual. Para iniciar sesión, `POST /api/auth/login` acepta `{"email":"maria@example.com","password":"una-clave-segura"}`. El inicio con Google usa `POST /api/auth/google` y recibe el ID token (la credencial `credential` que entrega Google Identity Services):
+
+```json
+{"idToken":"<ID token de Google>"}
+```
+
+El backend valida la firma y audiencia del token, y solo acepta correos verificados. Si el correo aún no tiene cuenta, se crea automáticamente; una cuenta inactiva no puede iniciar sesión. La respuesta es el mismo modelo `UserResponse` que el login normal. El ID token no es un access token de Google.
 
 Crear un instructor:
 
@@ -103,7 +112,7 @@ Las fechas `enrolledAt` y `evaluatedAt` son opcionales al crear; si se omiten, s
 
 ## Esquema y normalización
 
-Las migraciones versionadas están en `src/main/resources/db/migration`. `V1` normalizó relaciones de nivel e instructor y eliminó snapshots que duplicaban datos disponibles mediante sus claves foráneas (incluidos usuario/curso en inscripciones, evaluaciones, reseñas y certificados). `V2` elimina el contador redundante de lecciones de `cursos`; el total ahora se calcula desde `lecciones`, que además garantiza un único número de lección por curso. Las migraciones se aplican de forma incremental; no edites migraciones que ya se ejecutaron, agrega una nueva versión.
+Las migraciones versionadas están en `src/main/resources/db/migration`. `V1` normalizó relaciones de nivel e instructor y eliminó snapshots que duplicaban datos disponibles mediante sus claves foráneas (incluidos usuario/curso en inscripciones, evaluaciones, reseñas y certificados). `V2` elimina el contador redundante de lecciones de `cursos`; el total ahora se calcula desde `lecciones`, que además garantiza un único número de lección por curso. `V3` crea la tabla `reportes_seguridad` para guardar reportes de forma persistente. Las migraciones se aplican de forma incremental; no edites migraciones que ya se ejecutaron, agrega una nueva versión.
 
 ## Pruebas
 
