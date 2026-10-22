@@ -9,6 +9,8 @@
       </a>
     </div>
 
+    <details class="course-management">
+      <summary>Añadir un curso</summary>
     <form class="course-form" [formGroup]="courseForm" (ngSubmit)="saveCourse()">
       <label for="courseTitle">Título del curso</label>
       <input id="courseTitle" type="text" formControlName="title" required minlength="3">
@@ -30,6 +32,7 @@
         {{ saving ? 'Guardando...' : 'Guardar curso' }}
       </button>
     </form>
+    </details>
 
     @if (loading) {
       <p role="status">Cargando cursos...</p>
