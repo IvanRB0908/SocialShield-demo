@@ -18,6 +18,7 @@ import java.util.List;
 public class GoogleLoginService {
 
     private final DatabaseCrudService databaseCrudService;
+    private final String clientId;
     private final GoogleIdTokenVerifier verifier;
 
     public GoogleLoginService(
@@ -25,6 +26,7 @@ public class GoogleLoginService {
         @Value("${GOOGLE_CLIENT_ID:}") String clientId
     ) {
         this.databaseCrudService = databaseCrudService;
+        this.clientId = clientId;
         this.verifier = clientId.isBlank()
             ? null
             : new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -64,6 +66,10 @@ public class GoogleLoginService {
             name = name.substring(0, 100);
         }
         return databaseCrudService.loginWithGoogle(name, email);
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     private boolean isValidEmail(String email) {

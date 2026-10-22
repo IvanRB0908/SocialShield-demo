@@ -5,15 +5,6 @@ import { Router, RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { Header } from '../header/header';
 
-// Define el formato del objeto que se guarda cuando el usuario se registra.
-interface RegisterFormValues {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-}
-
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -49,13 +40,8 @@ export class Register implements OnDestroy {
       return;
     }
 
-    const values: RegisterFormValues = {
-      name: this.registerForm.controls.name.value,
-      email: this.registerForm.controls.email.value.trim().toLowerCase(),
-      password: this.registerForm.controls.password.value,
-      confirmPassword: this.registerForm.controls.confirmPassword.value,
-      terms: this.registerForm.controls.terms.value,
-    };
+    const values = this.registerForm.getRawValue();
+    values.email = values.email.trim().toLowerCase();
 
     this.saving = true;
     this.saved = false;

@@ -12,6 +12,12 @@
         <div class="login-panel">
           <div class="login-panel-heading"><span class="eyebrow">Bienvenido de nuevo</span><h2>Inicia sesión</h2><p>Introduce tus datos para acceder a SocialShield.</p></div>
           @if (notification) { <div class="login-notification" [class.notification-success]="notificationType === 'success'" role="alert">{{ notification }} @if (notificationType === 'error' && notification.includes('No existe')) { <a routerLink="/registro">REGÍSTRATE</a> }</div> }
+          <button class="google-signin-fallback" type="button" [hidden]="googleReady" disabled>
+            <span class="google-signin-letter" aria-hidden="true">G</span> Continuar con Google
+          </button>
+          <div id="google-signin-button" class="google-signin-button" [hidden]="!googleReady" aria-label="Iniciar sesión con Google"></div>
+          @if (googleStatus) { <p class="google-signin-status" role="status">{{ googleStatus }}</p> }
+          <div class="login-divider" aria-hidden="true"><span>o continúa con tu correo</span></div>
           <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
             <label for="email">Correo electrónico</label>
             <input id="email" type="email" formControlName="email" autocomplete="email" placeholder="tu correo@ejemplo.com" [class.input-error]="loginForm.controls.email.invalid && (loginForm.controls.email.touched || submitted)" />

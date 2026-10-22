@@ -34,12 +34,15 @@ Las operaciones de creación responden `201 Created`, las consultas y actualizac
 | --- | --- |
 | Sistema | `GET /api/health`, `GET /api/home` |
 | Cursos | `GET/POST /api/courses`, `GET/PUT/DELETE /api/courses/{id}` |
-| Usuarios y autenticación | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/{id}`, `POST /api/auth/login`, `POST /api/auth/google` |
+| Usuarios y autenticación | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/{id}`, `POST /api/auth/login`, `GET /api/auth/google/config`, `POST /api/auth/google` |
 | Instructores | `GET/POST /api/instructors`, `GET/PUT/DELETE /api/instructors/{id}` |
 | Lecciones | `GET/POST /api/lessons`, `GET/PUT/DELETE /api/lessons/{id}` |
 | Inscripciones | `GET/POST /api/enrollments`, `GET/PUT/DELETE /api/enrollments/{id}`, `GET /api/users/{userId}/progress` |
 | Evaluaciones | `GET/POST /api/evaluations`, `GET/PUT/DELETE /api/evaluations/{id}` |
 | Reportes de seguridad | `GET/POST /api/security-reports` |
+| Solicitudes ARCO | `GET/POST /api/arco-requests`, `GET/PUT/DELETE /api/arco-requests/{id}` |
+
+ARCO es un CRUD local de solicitudes con datos ficticios, sin cambios automáticos sobre usuarios ni autenticación adicional. La migración V4 crea su tabla. Consulta [campos, ejemplos y pruebas ARCO](../docs/arco-backend.md).
 
 Cada recurso CRUD incluye lectura de colección y por ID, creación, actualización y borrado. Las contraseñas de usuario se almacenan con PBKDF2 y nunca se devuelven en respuestas. El inicio de sesión valida credenciales, pero todavía no emite tokens ni protege las rutas mediante autorización. Los reportes de seguridad se guardan en la tabla `reportes_seguridad` de PostgreSQL; su API ofrece creación y consulta.
 
@@ -78,6 +81,7 @@ Actualizar un usuario usa el mismo perfil; `password` puede omitirse para conser
 ```
 
 El backend valida la firma y audiencia del token, y solo acepta correos verificados. Si el correo aún no tiene cuenta, se crea automáticamente; una cuenta inactiva no puede iniciar sesión. La respuesta es el mismo modelo `UserResponse` que el login normal. El ID token no es un access token de Google.
+El frontend consulta `GET /api/auth/google/config` para obtener el client ID configurado en el backend; si falta `GOOGLE_CLIENT_ID`, muestra el botón deshabilitado y un mensaje de configuración.
 
 Crear un instructor:
 
@@ -126,3 +130,7 @@ try {
     Remove-Item Env:DB_PASSWORD -ErrorAction SilentlyContinue
 }
 ```
+
+## Organización de los controladores
+
+El backend conserva sus 38 rutas en cinco controladores. Consulta [la agrupación y las simplificaciones](../docs/organizacion-controladores.md), [los resultados de validación](../docs/validacion-reorganizacion.md) y [la colección Postman](../docs/SocialShield.postman_collection.json).

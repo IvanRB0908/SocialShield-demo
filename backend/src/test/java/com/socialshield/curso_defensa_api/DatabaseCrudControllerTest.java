@@ -43,6 +43,13 @@ class DatabaseCrudControllerTest {
     }
 
     @Test
+    void shouldExposeGoogleClientConfiguration() throws Exception {
+        mockMvc.perform(get("/api/auth/google/config"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.clientId").exists());
+    }
+
+    @Test
     void shouldCreateAndReuseGoogleUserByVerifiedEmail() {
         String email = "google-%s@example.test".formatted(java.util.UUID.randomUUID());
 

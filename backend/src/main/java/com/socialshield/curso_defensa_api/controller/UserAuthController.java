@@ -1,6 +1,7 @@
 package com.socialshield.curso_defensa_api.controller;
 
 import com.socialshield.curso_defensa_api.model.GoogleLoginRequest;
+import com.socialshield.curso_defensa_api.model.GoogleAuthConfigResponse;
 import com.socialshield.curso_defensa_api.model.LoginRequest;
 import com.socialshield.curso_defensa_api.model.RegisterRequest;
 import com.socialshield.curso_defensa_api.model.UserCrudRequest;
@@ -70,6 +71,11 @@ public class UserAuthController {
         return googleLoginService.login(request.idToken());
     }
 
+    @GetMapping("/auth/google/config")
+    public GoogleAuthConfigResponse googleAuthConfig() {
+        return new GoogleAuthConfigResponse(googleLoginService.getClientId());
+    }
+
     @GetMapping("/users")
     public List<UserCrudResponse> getUsers() {
         return databaseCrudService.getUsers();
@@ -82,7 +88,7 @@ public class UserAuthController {
 
     @PutMapping("/users/{id}")
     public UserCrudResponse updateUser(@PathVariable int id, @RequestBody UserCrudRequest request) {
-        validateProfile(request, false);
+        validateProfile(request);
         return databaseCrudService.updateUser(id, request);
     }
 
@@ -92,13 +98,13 @@ public class UserAuthController {
         return ResponseEntity.noContent().build();
     }
 
-    private void validateProfile(UserCrudRequest request, boolean requirePassword) {
+    private void validateProfile(UserCrudRequest request) {
         if (request.name() == null || request.name().isBlank() || request.name().length() > 100
             || !isValidEmail(request.email()) || request.email().length() > 120) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre y correo deben ser válidos.");
         }
-        if ((requirePassword || request.password() != null && !request.password().isBlank())
-            && (request.password() == null || request.password().length() < 8 || request.password().length() > 128)) {
+        if (request.password() != null && !request.password().isBlank()
+            && (request.password().length() < 8 || request.password().length() > 128)) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "La contraseña debe tener entre 8 y 128 caracteres."
